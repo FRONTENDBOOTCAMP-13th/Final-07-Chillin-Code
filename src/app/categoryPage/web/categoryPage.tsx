@@ -5,6 +5,7 @@ import styles from '@/styles/categoryPage/web/categoryPage.module.css';
 import { productFetch } from '@/app/fetch/product';
 import { Product } from '@/app/types/productType';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Filter {
   name: string;
@@ -409,7 +410,7 @@ export default function CategoryPage() {
                 <div key={product._id} className={styles.highlight_card}>
                   <Link href={`/products/${product._id}`} key={product._id}>
                     {product.mainImages?.[0]?.path && (
-                      <img src={`/${product.mainImages[0].path}`} alt={product.name} />
+                      <Image src={`/${product.mainImages[0].path}`} alt={product.name} />
                     )}
                     <h4>{product.name}</h4>
                     <p>{product.price?.toLocaleString()}원</p>
@@ -487,7 +488,7 @@ export default function CategoryPage() {
                 <Link href={`/products/${product._id}`} key={product._id}>
                   <div className={styles.product_image}>
                     {product.mainImages?.[0]?.path && (
-                      <img src={`/${product.mainImages[0].path}`} alt={product.name} />
+                      <Image src={`/${product.mainImages[0].path}`} alt={product.name} />
                     )}
                   </div>
                   <h4 className={styles.product_name}>{product.name}</h4>

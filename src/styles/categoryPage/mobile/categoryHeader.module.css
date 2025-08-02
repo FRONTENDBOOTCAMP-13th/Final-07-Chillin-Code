@@ -1,17 +1,29 @@
+/*모바일 카테고리 헤더 */
+
 .header {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-self: center;
-  padding-block: 21px;
+  padding-top: 14px;
   padding-inline: 16px;
 }
 
 .header_left {
   display: flex;
   align-items: center;
-  gap: 5px;
   font-size: 12px;
+  background-color: #fcfcfc;
+  border: 0;
+}
+
+.header_left button {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  background-color: #fcfcfc;
+  gap: 6px;
+  border: 0;
 }
 
 .filter_icon {
@@ -21,6 +33,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #fcfcfc;
+  border: 0;
 }
 
 .filter_text {
@@ -51,6 +65,7 @@
 .header_right {
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-left: 5px;
 }
 

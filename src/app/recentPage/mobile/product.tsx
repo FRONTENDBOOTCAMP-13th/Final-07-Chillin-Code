@@ -3,6 +3,7 @@ import { useState } from 'react';
 import styles from '@/styles/recentPage/mobile/recentProduct.module.css';
 
 import { Product } from '@/types/product';
+import Image from 'next/image';
 
 interface MobileRecentProductsProps {
   initialProducts: Product[];
@@ -60,10 +61,10 @@ const MobileRecentProducts = ({ initialProducts }: MobileRecentProductsProps) =>
               >
                 {/* 상품 이미지 */}
                 <div className={styles.productImage} onClick={() => handleProductClick(product.id)}>
-                  <img
+                  <Image
                     src={product.image}
                     alt={product.name}
-                    className={styles.productImageImg}
+                    className={styles.productImageImage}
                     onError={(e) => {
                       // 이미지 로드 실패 시 대체 텍스트 표시
                       e.currentTarget.style.display = 'none';

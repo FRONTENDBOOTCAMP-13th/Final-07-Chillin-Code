@@ -12,6 +12,11 @@
   --color-text-pointer: #ac1313;
   --color-border-light: #b6c5c5;
   --color-bg-light: #d0d0d0;
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 }
 
 @font-face {

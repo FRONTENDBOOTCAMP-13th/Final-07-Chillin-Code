@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import styles from '@/styles/recentPage/web/recentProduct.module.css';
 import { Product } from '@/types/product';
+import Image from 'next/image';
 console.log('.');
 
 interface WebRecentProductsProps {
@@ -56,7 +57,7 @@ const WebRecentProducts = ({ initialProducts }: WebRecentProductsProps) => {
                     className={styles.product_image}
                     onClick={() => handleProductClick(product.id)}
                   >
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
                       className={styles.product_image_img}

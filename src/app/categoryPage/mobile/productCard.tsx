@@ -2,36 +2,58 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ProductCardProps } from '@/types/product';
+import { Product } from '@/app/types/productType';
 import styles from '@/styles/categoryPage/mobile/categoryProductCard.module.css';
+import Image from 'next/image';
 
-export default function ProductCard({ product }: ProductCardProps) {
+interface ProductCardProps {
+  product: Product;
+  viewMode?: 'grid' | 'list';
+}
+
+export default function ProductCard({ product, viewMode = 'grid' }: ProductCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsLiked(!isLiked);
+    // TODO: 좋아요 API 연동
   };
 
   const handleCartClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsInCart(!isInCart);
-    // 장바구니 추가 로직
+    // TODO: 장바구니 추가 API 연동
   };
 
   return (
-    <Link href={`/product/${product.id}`}>
-      <div className={styles.product_item}>
+    <div
+      className={`${styles.product_item} ${viewMode === 'list' ? styles.list_layout : styles.grid_layout}`}
+    >
+      <Link href={`/products/${product._id}`}>
         <div className={styles.product_image}>
-          <img src={product.image} alt={product.name} />
+          {product.mainImages?.[0]?.path ? (
+            <Image
+              src={`/${product.mainImages[0].path}`}
+              alt={product.name}
+              onError={(e) => {
+                e.currentTarget.src = '/images/placeholder.png';
+              }}
+            />
+          ) : (
+            <div className={styles.no_image}>
+              <span>이미지 없음</span>
+            </div>
+          )}
         </div>
+
         <div className={styles.product_info}>
           <h3 className={styles.product_name}>{product.name}</h3>
-          <p className={styles.product_price}>{product.price.toLocaleString()}원</p>
+          <p className={styles.product_price}>{product.price?.toLocaleString()}원</p>
           <div className={styles.product_meta}>
-            <span>평점 {product.likes}</span>
-            <span>/ 리뷰 {product.comments}</span>
+            <span>평점 {product.extra?.rating || 0}</span>
+            <span>/ 리뷰 {product.extra?.reviewCount || 0}</span>
           </div>
           <div className={styles.product_actions}>
             <button
@@ -70,7 +92,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </button>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
