@@ -113,6 +113,8 @@ export default function MobileRecentProducts() {
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/default-product-image.png';
                   }}
+                  width={100}
+                  height={100}
                 />
 
                 {/* 상품 정보 */}

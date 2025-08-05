@@ -192,6 +192,7 @@
   align-items: center;
   margin: 0;
   gap: clamp(20px, 8vw, 95px);
+  text-decoration: none;
 }
 
 .tab {

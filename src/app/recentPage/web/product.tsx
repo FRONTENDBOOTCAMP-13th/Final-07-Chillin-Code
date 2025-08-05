@@ -87,6 +87,8 @@ const WebRecentProducts = () => {
                       alt={product.name}
                       className={styles.product_image_img}
                       onError={(e) => (e.currentTarget.src = '/default-product-image.png')}
+                      width={100}
+                      height={100}
                     />
                   </div>
 

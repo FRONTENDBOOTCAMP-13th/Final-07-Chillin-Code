@@ -295,7 +295,7 @@ export default function MyPageHeader() {
             <Link href="/myPage" className={header_styles.web_header_my_page_icon_wrapper}>
               <Image src="/icons/mypage-icon.svg" alt="마이페이지 아이콘" width={17} height={17} />
             </Link>
-            <Link href="/shoppingCart" className={header_styles.web_header_cart_icon_wrapper}>
+            <Link href="/shoppingcart" className={header_styles.web_header_cart_icon_wrapper}>
               <Image src="/icons/cart-icon.svg" alt="장바구니 아이콘" width={17} height={17} />
             </Link>
           </div>

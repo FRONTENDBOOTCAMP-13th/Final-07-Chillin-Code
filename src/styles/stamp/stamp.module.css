@@ -258,6 +258,19 @@
     border-radius: 50%;
     z-index: 5;
   }
+  /* 애니메이션 */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .stamp_animate {
+    animation: fadeIn 0.8s ease-out;
+  }
 }
 
 /* 375px이상부턴 이미지가 너무 작아서 크기, 위치 수정 */
@@ -537,6 +550,18 @@
     border-radius: 50%;
     z-index: 5;
   }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .stamp_animate {
+    animation: fadeIn 0.8s ease-out;
+  }
 }
 /* 뷰포트 1350부터는 회원정보와 버튼들 사이드바에 */
 @media (min-width: 1350px) {
@@ -789,6 +814,18 @@
     height: 300px;
     overflow-x: hidden;
     border-radius: 50%;
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  .stamp_animate {
+    animation: fadeIn 0.8s ease-out;
   }
 }
 /* 뷰포트에 따른 양옆 간격 */

@@ -40,6 +40,12 @@ export default function MainFooter() {
       <div className={footer_styles.footer__resource}>
         <p>출처: http://www.kbrising.com/product/detail/12345/</p>
       </div>
+      <div className={footer_styles.footer__educational}>
+        <p>
+          본 사이트는 멋쟁이사자처럼 프론트엔드 부트캠프 13기 프로젝트로 제작된 페이지입니다. <br />
+          해당 페이지는 교육 목적으로만 제작되었으며, 비상업적 용도로 사용됩니다.
+        </p>
+      </div>
     </footer>
   );
 }

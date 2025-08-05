@@ -833,6 +833,8 @@
     color: #6b7878;
     font-size: 16px;
     font-weight: 600;
+    white-space: nowrap;
+    padding-right: 1rem;
   }
 }
 @media (min-width: 90rem) {

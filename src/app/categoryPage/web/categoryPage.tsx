@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '@/styles/categoryPage/web/categoryPage.module.css';
 import { productFetch } from '@/app/fetch/product';
 import { Product } from '@/app/types/productType';
@@ -54,70 +54,6 @@ export default function CategoryPage() {
   // 신상품/베스트 탭
   const [highlightTab, setHighlightTab] = useState('신상품');
 
-  // 하이라이트 박스 스크롤 관련 상태
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
-  // 마우스 이벤트 핸들러들
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-    // 드래그 중 텍스트 선택 방지
-    e.preventDefault();
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // 드래그 감도
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    e.stopPropagation(); // 추가!
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft += e.deltaY;
-    }
-  };
-
-  // 전역 마우스 이벤트 리스너 추가 (드래그 중에 마우스가 컨테이너 밖으로 나가도 처리)
-  useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !scrollRef.current) return;
-      const x = e.pageX - scrollRef.current.offsetLeft;
-      const walk = (x - startX) * 1.5;
-      scrollRef.current.scrollLeft = scrollLeft - walk;
-    };
-
-    const handleGlobalMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-    }
-
-    return () => {
-      document.removeEventListener('mousemove', handleGlobalMouseMove);
-      document.removeEventListener('mouseup', handleGlobalMouseUp);
-    };
-  }, [isDragging, startX, scrollLeft]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -153,6 +89,81 @@ export default function CategoryPage() {
 
     fetchData();
   }, []);
+
+  // 하이라이트 박스 스크롤 이벤트 처리
+  useEffect(() => {
+    const scroll_container = document.querySelector(`.${styles.highlight_products}`) as HTMLElement;
+
+    if (!scroll_container) return;
+
+    const handle_wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const scroll_amount = e.deltaY * 0.8;
+      scroll_container.scrollLeft += scroll_amount;
+    };
+
+    const handle_touch_start = (e: TouchEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      container.dataset.touch_start_x = e.touches[0].clientX.toString();
+      container.dataset.scroll_left = container.scrollLeft.toString();
+    };
+
+    const handle_touch_move = (e: TouchEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      if (!container.dataset.touch_start_x) return;
+
+      const touch_x = e.touches[0].clientX;
+      const start_x = parseFloat(container.dataset.touch_start_x || '0');
+      const scroll_left = parseFloat(container.dataset.scroll_left || '0');
+
+      container.scrollLeft = scroll_left - (touch_x - start_x);
+    };
+
+    const handle_mouse_down = (e: MouseEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      if ((e.target as HTMLElement).closest(`.${styles.highlight_card}`)) {
+        return;
+      }
+
+      let is_down = true;
+      const start_x = e.pageX - container.offsetLeft;
+      const scroll_left = container.scrollLeft;
+      container.style.cursor = 'grabbing';
+
+      const handle_mouse_move = (e: MouseEvent) => {
+        if (!is_down) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - start_x) * 1.5;
+        container.scrollLeft = scroll_left - walk;
+      };
+
+      const handle_mouse_up = () => {
+        is_down = false;
+        container.style.cursor = 'grab';
+        document.removeEventListener('mousemove', handle_mouse_move);
+        document.removeEventListener('mouseup', handle_mouse_up);
+      };
+
+      document.addEventListener('mousemove', handle_mouse_move);
+      document.addEventListener('mouseup', handle_mouse_up);
+    };
+
+    scroll_container.addEventListener('wheel', handle_wheel, { passive: false });
+    scroll_container.addEventListener('mousedown', handle_mouse_down);
+    scroll_container.addEventListener('touchstart', handle_touch_start, { passive: false });
+    scroll_container.addEventListener('touchmove', handle_touch_move, { passive: false });
+    scroll_container.style.cursor = 'grab';
+    scroll_container.style.userSelect = 'none';
+
+    return () => {
+      scroll_container.removeEventListener('wheel', handle_wheel);
+      scroll_container.removeEventListener('mousedown', handle_mouse_down);
+      scroll_container.removeEventListener('touchstart', handle_touch_start);
+      scroll_container.removeEventListener('touchmove', handle_touch_move);
+    };
+  }, [highlightTab, products]); // highlightTab이나 products가 변경될 때마다 이벤트 재등록
 
   // 필터링 로직
   useEffect(() => {
@@ -372,6 +383,26 @@ export default function CategoryPage() {
 
               {/* 초기화 버튼 */}
               <button className={styles.reset_btn} onClick={handleReset}>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10.0002 1C12.1232 1.00003 14.1779 1.7506 15.8011 3.11905C17.4243 4.48749 18.5114 6.3857 18.8704 8.47819C19.2294 10.5707 18.8371 12.7227 17.7629 14.5539C16.6886 16.3851 15.0016 17.7776 12.9999 18.4853C10.9983 19.193 8.81093 19.1702 6.82443 18.4211C4.83792 17.672 3.18019 16.2448 2.14422 14.3916C1.10826 12.5385 0.760759 10.3788 1.16315 8.29421C1.56553 6.20964 2.6919 4.33442 4.34316 3"
+                    stroke="black"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M1 2.5H5V6.5"
+                    stroke="black"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
                 초기화
               </button>
             </div>
@@ -383,39 +414,27 @@ export default function CategoryPage() {
           <div className={styles.highlight_box}>
             <div className={styles.tab_buttons}>
               <button
-                className={highlightTab === '신상품' ? styles.active : ''}
+                className={`${styles.highlight_tab} ${highlightTab === '신상품' ? styles.active : ''}`}
                 onClick={() => setHighlightTab('신상품')}
               >
                 신상품
               </button>
               <button
-                className={highlightTab === '베스트' ? styles.active : ''}
+                className={`${styles.highlight_tab} ${highlightTab === '베스트' ? styles.active : ''}`}
                 onClick={() => setHighlightTab('베스트')}
               >
                 베스트
               </button>
             </div>
 
-            <div
-              className={styles.highlight_products}
-              ref={scrollRef}
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseLeave}
-              onWheel={handleWheel}
-              style={{
-                cursor: isDragging ? 'grabbing' : 'grab',
-                userSelect: 'none', // 드래그 중 텍스트 선택 방지
-              }}
-            >
+            <div className={styles.highlight_products}>
               {getHighlightProducts().map((product) => (
                 <div
                   key={product._id}
                   className={styles.highlight_card}
                   onClick={() => addRecentProduct(product._id)}
                 >
-                  <Link href={`/products/${product._id}`} key={product._id}>
+                  <Link href={`/products/${product._id}`}>
                     {product.mainImages?.[0]?.path && (
                       <Image
                         src={`/${product.mainImages[0].path}`}

@@ -3,6 +3,7 @@
 import styles from '@/styles/components/button.module.css';
 import shopping_cart_styles from '@/styles/shoppingCart/shoppingCart.module.css';
 import { useCartStore } from '@/zustand/userCartStore';
+import { useRouter } from 'next/navigation';
 
 interface SummaryProps {
   viewType: 'mobile' | 'web';
@@ -12,7 +13,15 @@ export default function Summary({ viewType }: SummaryProps) {
   const isMobile = viewType === 'mobile';
   const items = useCartStore((state) => state.items);
   const totalPrice = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const router = useRouter();
 
+  const handlePayment = () => {
+    if (items.length === 0) {
+      alert('장바구니가 비어 있습니다.');
+      return;
+    }
+    router.push('/order');
+  };
   return (
     <div
       className={
@@ -102,7 +111,9 @@ export default function Summary({ viewType }: SummaryProps) {
             : shopping_cart_styles.web_shopping_cart_buy_button_wrapper
         }
       >
-        <button className={styles.payment_button}>결제하기</button>
+        <button className={styles.payment_button} onClick={handlePayment}>
+          결제하기
+        </button>
       </div>
     </div>
   );

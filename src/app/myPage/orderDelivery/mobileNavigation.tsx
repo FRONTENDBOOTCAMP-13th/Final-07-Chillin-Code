@@ -9,9 +9,6 @@ export default function MobileNavigation() {
       <Link className={orderDelivery_styles.mobile_nav_item} href="/myPage/orderDelivery">
         주문/배송 조회
       </Link>
-      <Link className={orderDelivery_styles.mobile_nav_item} href="/myPage/cancelReturnExchange">
-        취소/반품/교환
-      </Link>
       <Link className={orderDelivery_styles.mobile_nav_item} href="/myPage/wishlist">
         찜 리스트
       </Link>

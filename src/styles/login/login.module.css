@@ -52,6 +52,7 @@
 .back_button {
   width: 4.2vw;
   height: 2vh;
+  cursor: pointer;
 }
 
 .login_title {

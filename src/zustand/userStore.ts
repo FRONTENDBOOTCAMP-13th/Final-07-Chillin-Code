@@ -12,6 +12,7 @@ const useUserStore = create(
     {
       name: 'user', // 스토리지에 저장할 key
       storage: createJSONStorage(() => sessionStorage), // 기본이 local storage를 사용하지만 여기서는 session storage로 지정
+    
     },
   ),
 );

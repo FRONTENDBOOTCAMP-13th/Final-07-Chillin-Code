@@ -1,11 +1,12 @@
 'use client';
 import { useState } from 'react';
 import stamp_page_styles from '@/styles/stamp/stamp.module.css';
-import StampWebAsideMenu from '@/app/stamp/StampWebAsideMenu';
-import StampWebMainContent from '@/app/stamp/StampWebMainContent';
-import StampWebSideContent from '@/app/stamp/StampWebSideContent';
-import StampWebToast from '@/app/stamp/StampWebToast';
-import StampWebSideToast from '@/app/stamp/StampWebSideToast';
+
+import StampWebMainContent from '@/app/myPage/stamp/StampWebMainContent';
+import StampWebSideContent from '@/app/myPage/stamp/StampWebSideContent';
+import StampWebToast from '@/app/myPage/stamp/StampWebToast';
+import StampWebSideToast from '@/app/myPage/stamp/StampWebSideToast';
+import WebAsideMenu from '../orderDelivery/webAsideMenu';
 
 export default function StampWebView() {
   const [toast, setToast] = useState(false);
@@ -19,10 +20,9 @@ export default function StampWebView() {
       </div>
 
       <div className={stamp_page_styles.web_main_page_section}>
-        <StampWebAsideMenu />
-        <StampWebMainContent onClick={showToast} />
+        <WebAsideMenu />
+        <StampWebMainContent />
         <StampWebSideContent onClick={showToast} />
-
         {toast && (
           <>
             <StampWebToast onClose={closeToast} />

@@ -1,7 +1,36 @@
+'use client';
+
 import '@/styles/globals.css';
 import myPage_styles from '@/styles/myPage/myPage.module.css';
+import Link from 'next/link';
+import { useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import useUserStore from '@/zustand/userStore';
+import WebAsideMenu from './orderDelivery/webAsideMenu';
+import WebMembershipSection from './orderDelivery/webMembershipSection';
+import WebOrderDeliveryView from './orderDelivery/webOrderDeliveryView';
+import orderDelivery_styles from '@/styles/myPage/orderDelivery.module.css';
 
-export default function myPage() {
+export default function MyPage() {
+  const router = useRouter();
+  const user = useUserStore((state) => state.user);
+  const hasAlerted = useRef(false);
+
+  useEffect(() => {
+    if (!user || !user.token?.accessToken) {
+      if (!hasAlerted.current) {
+        hasAlerted.current = true;
+        alert('로그인이 필요합니다.');
+        router.push('/login');
+      }
+    }
+  }, [user, router]);
+
+  // 로그인되지 않은 경우 아무것도 렌더링하지 않음
+  if (!user || !user.token?.accessToken) {
+    return null;
+  }
+
   return (
     <>
       {/* 마이 페이지 */}
@@ -24,26 +53,26 @@ export default function myPage() {
             </svg>
             <div className={myPage_styles.membership_container}>
               <span className={myPage_styles.membership_badge}>NEW</span>
-              <h2 className={myPage_styles.membership_title}>장유하님의 등급혜택 &gt;</h2>
+              <h2 className={myPage_styles.membership_title}>{user.name}님의 등급혜택 &gt;</h2>
             </div>
           </div>
 
           {/* 스탬프, 포인트 */}
           <dl className={myPage_styles.benefit_list}>
-            <div className={myPage_styles.benefit_container}>
+            <Link className={myPage_styles.benefit_container} href="/myPage/stamp">
               <div className={myPage_styles.benefit_wrapper}>
                 <dt className={myPage_styles.benefit_title}>스탬프</dt>
-                <dd className={myPage_styles.benefit_value}>0개</dd>
+                <dd className={myPage_styles.benefit_value}>{user.extra?.stamp || 0}개</dd>
               </div>
               <span className={myPage_styles.benefit_arrow}>&gt;</span>
-            </div>
-            <div className={myPage_styles.benefit_container}>
+            </Link>
+            <Link className={myPage_styles.benefit_container} href="/myPage/rewards">
               <div className={myPage_styles.benefit_wrapper}>
-                <dt className={myPage_styles.benefit_title}>포인트</dt>
-                <dd className={myPage_styles.benefit_value}>0점</dd>
+                <dt className={myPage_styles.benefit_title}>당첨내역</dt>
+                <dd className={myPage_styles.benefit_value}>0건</dd>
               </div>
               <span className={myPage_styles.benefit_arrow}>&gt;</span>
-            </div>
+            </Link>
           </dl>
         </section>
 
@@ -104,24 +133,16 @@ export default function myPage() {
           <h2 className={myPage_styles.my_page_list_title}>쇼핑정보</h2>
           <hr className={myPage_styles.my_page_list_title_divider} />
 
-          <div className={myPage_styles.shopping_info_wrapper}>
+          <Link className={myPage_styles.shopping_info_wrapper} href="/myPage/orderDelivery">
             <p className={myPage_styles.my_page_label}>주문/배송 조회</p>
-            <span className={myPage_styles.my_page_count}>
-              <span className={myPage_styles.count_point_color}>0</span>건 &gt;
-            </span>
-          </div>
-          <hr className={myPage_styles.my_page_divider} />
-
-          <div className={myPage_styles.shopping_info_wrapper}>
-            <p className={myPage_styles.my_page_label}>취소/반품 교환 내역</p>
             <span className={myPage_styles.my_page_arrow}>&gt;</span>
-          </div>
+          </Link>
           <hr className={myPage_styles.my_page_divider} />
 
-          <div className={myPage_styles.shopping_info_wrapper}>
+          <Link className={myPage_styles.shopping_info_wrapper} href="/myPage/wishlist">
             <p className={myPage_styles.my_page_label}>찜리스트</p>
             <span className={myPage_styles.my_page_arrow}>&gt;</span>
-          </div>
+          </Link>
           <hr className={myPage_styles.shopping_info_divider} />
         </section>
 
@@ -130,20 +151,16 @@ export default function myPage() {
           <h2 className={myPage_styles.my_page_list_title}>혜택관리</h2>
           <hr className={myPage_styles.my_page_list_title_divider} />
 
-          <div className={myPage_styles.count_point_wrapper}>
+          <Link className={myPage_styles.count_point_wrapper} href="/myPage/stamp">
             <p className={myPage_styles.my_page_label}>스탬프</p>
-            <span className={myPage_styles.my_page_count}>
-              <span className={myPage_styles.count_point_color}>0</span>개 &gt;
-            </span>
-          </div>
+            <span className={myPage_styles.my_page_arrow}>&gt;</span>
+          </Link>
           <hr className={myPage_styles.my_page_divider} />
 
-          <div className={myPage_styles.count_point_wrapper}>
+          <Link className={myPage_styles.count_point_wrapper} href="/myPage/rewards">
             <p className={myPage_styles.my_page_label}>당첨내역</p>
-            <span className={myPage_styles.my_page_count}>
-              <span className={myPage_styles.count_point_color}>0</span>개 &gt;
-            </span>
-          </div>
+            <span className={myPage_styles.my_page_arrow}>&gt;</span>
+          </Link>
           <hr className={myPage_styles.my_page_divider} />
         </section>
 
@@ -176,6 +193,30 @@ export default function myPage() {
           </div>
           <hr className={myPage_styles.my_page_divider} />
         </section>
+      </div>
+
+      {/* 웹 주문/배송조회 페이지 */}
+      <div className={orderDelivery_styles.web_order_delivery}>
+        <div
+          className={orderDelivery_styles.web_order_delivery_navigation}
+          aria-label="현재 위치"
+          role="navigation"
+        >
+          <p className={orderDelivery_styles.web_order_delivery_current_page}>
+            HOME &nbsp; &gt; &nbsp; 마이페이지 &nbsp; &gt; &nbsp; 쇼핑 정보 &nbsp; &gt; &nbsp;
+            <span className={orderDelivery_styles.web_order_delivery_navigation_current}>
+              주문/배송 조회
+            </span>
+          </p>
+        </div>
+
+        <div className={orderDelivery_styles.web_order_wrapper}>
+          <WebAsideMenu />
+          <div className={orderDelivery_styles.web_order_delivery_sections}>
+            <WebMembershipSection />
+            <WebOrderDeliveryView />
+          </div>
+        </div>
       </div>
     </>
   );

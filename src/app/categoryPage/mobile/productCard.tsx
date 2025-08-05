@@ -33,7 +33,7 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
       className={`${styles.product_item} ${viewMode === 'list' ? styles.list_layout : styles.grid_layout}`}
       onClick={() => addRecentProduct(product._id)}
     >
-      <Link href={`/products/${product._id}`}>
+      <Link href={`/products/${product._id}`} className={styles.product_link}>
         <div className={styles.product_image}>
           {product.mainImages?.[0]?.path ? (
             <Image
@@ -42,6 +42,8 @@ export default function ProductCard({ product, viewMode = 'grid' }: ProductCardP
               onError={(e) => {
                 e.currentTarget.src = '/images/placeholder.png';
               }}
+              width={100}
+              height={100}
             />
           ) : (
             <div className={styles.no_image}>

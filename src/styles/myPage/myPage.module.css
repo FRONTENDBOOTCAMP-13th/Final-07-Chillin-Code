@@ -1,4 +1,8 @@
 /* 마이 페이지 */
+.web_order_delivery {
+  display: none;
+}
+
 .my_page {
   display: flex;
   flex-flow: column wrap;
@@ -46,7 +50,7 @@
   width: 100%;
   height: 8vh;
   background-color: rgba(208, 208, 208, 0.2);
-  padding: 4vw;
+  padding: 1rem;
   justify-content: space-between;
   align-items: center;
 }
@@ -55,7 +59,8 @@
   display: flex;
   flex-flow: row wrap;
   align-items: center;
-  gap: 28vw;
+  gap: 25vw;
+  text-decoration: none;
 }
 
 .benefit_wrapper {
@@ -116,7 +121,7 @@
   flex-flow: row nowrap;
   align-items: center;
   justify-content: center;
-  gap: 3vw;
+  gap: 2vw;
 }
 
 .order_step_wrapper {
@@ -157,7 +162,7 @@
 .order_step_label_wrapper {
   display: flex;
   flex-flow: row wrap;
-  gap: 9.4vw;
+  gap: 9vw;
 }
 
 .order_step_label {
@@ -176,15 +181,10 @@
   flex-flow: row wrap;
   justify-content: space-between;
   padding: 1.6vw 3.5vw 0.6vw 3.5vw;
+  text-decoration: none;
 }
 
 .my_page_label {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #081818;
-}
-
-.my_page_count {
   font-size: 0.875rem;
   font-weight: 700;
   color: #081818;
@@ -202,12 +202,6 @@
   border: none;
 }
 
-.count_point_color {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #ac1313;
-}
-
 /* 혜택관리 */
 .count_point_section {
   margin-top: 4vh;
@@ -218,6 +212,7 @@
   flex-flow: row wrap;
   justify-content: space-between;
   padding: 1.6vw 3.5vw 0.6vw 3.5vw;
+  text-decoration: none;
 }
 
 /* 회원정보 수정 */
@@ -231,4 +226,10 @@
   flex-flow: row wrap;
   justify-content: space-between;
   padding: 1.6vw 3.5vw 0.6vw 3.5vw;
+}
+
+@media (min-width: 480px) {
+  .my_page {
+    display: none;
+  }
 }

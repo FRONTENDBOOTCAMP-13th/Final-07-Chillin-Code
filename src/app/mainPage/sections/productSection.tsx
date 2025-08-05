@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useRef, useState, useEffect, JSX } from 'react';
+import React, { useState, useEffect, JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { productFetch } from '@/app/fetch/product';
 import { Product } from '@/app/types/productType';
 import styles from '../../../styles/mainPage/sections/productSection.module.css';
 import { addRecentProduct } from '@/utils/recentProduct';
+import ResponsiveLink from '@/app/mainPage/sections/responsiveLink';
 
 // Hero 이미지 매핑 함수
 const getHeroImage = (movieName: string): string => {
@@ -23,18 +24,6 @@ export default function ProductSection(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
-
-  // Map으로 카테고리별 ref 관리
-  const scrollRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-
-  // 드래그 상태
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-
-  // 휠 이벤트 제어를 위한 ref
-  const wheelEventRef = useRef<((e: WheelEvent) => void) | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,82 +57,88 @@ export default function ProductSection(): JSX.Element {
     };
 
     fetchData();
-
-    // 컴포넌트 언마운트 시 휠 이벤트 리스너 정리
-    return () => {
-      if (wheelEventRef.current) {
-        document.removeEventListener('wheel', wheelEventRef.current);
-      }
-    };
   }, []);
+
+  // 스크롤 이벤트 처리
+  useEffect(() => {
+    const scroll_containers = document.querySelectorAll(
+      `.${styles.product_row_scroll}`,
+    ) as NodeListOf<HTMLElement>;
+
+    const handle_wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const scroll_amount = e.deltaY * 0.8;
+      (e.currentTarget as HTMLElement).scrollLeft += scroll_amount;
+    };
+
+    const handle_touch_start = (e: TouchEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      container.dataset.touch_start_x = e.touches[0].clientX.toString();
+      container.dataset.scroll_left = container.scrollLeft.toString();
+    };
+
+    const handle_touch_move = (e: TouchEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      if (!container.dataset.touch_start_x) return;
+
+      const touch_x = e.touches[0].clientX;
+      const start_x = parseFloat(container.dataset.touch_start_x || '0');
+      const scroll_left = parseFloat(container.dataset.scroll_left || '0');
+
+      container.scrollLeft = scroll_left - (touch_x - start_x);
+    };
+
+    const handle_mouse_down = (e: MouseEvent) => {
+      const container = e.currentTarget as HTMLElement;
+      if ((e.target as HTMLElement).closest(`.${styles.product_card}`)) {
+        return;
+      }
+
+      let is_down = true;
+      const start_x = e.pageX - container.offsetLeft;
+      const scroll_left = container.scrollLeft;
+      container.style.cursor = 'grabbing';
+
+      const handle_mouse_move = (e: MouseEvent) => {
+        if (!is_down) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - start_x) * 1.5; // 리뷰 섹션보다 느린 드래그 속도
+        container.scrollLeft = scroll_left - walk;
+      };
+
+      const handle_mouse_up = () => {
+        is_down = false;
+        container.style.cursor = 'grab';
+        document.removeEventListener('mousemove', handle_mouse_move);
+        document.removeEventListener('mouseup', handle_mouse_up);
+      };
+
+      document.addEventListener('mousemove', handle_mouse_move);
+      document.addEventListener('mouseup', handle_mouse_up);
+    };
+
+    scroll_containers.forEach((container) => {
+      container.addEventListener('wheel', handle_wheel, { passive: false });
+      container.addEventListener('mousedown', handle_mouse_down);
+      container.addEventListener('touchstart', handle_touch_start, { passive: false });
+      container.addEventListener('touchmove', handle_touch_move, { passive: false });
+      container.style.cursor = 'grab';
+    });
+
+    return () => {
+      scroll_containers.forEach((container) => {
+        container.removeEventListener('wheel', handle_wheel);
+        container.removeEventListener('mousedown', handle_mouse_down);
+        container.removeEventListener('touchstart', handle_touch_start);
+        container.removeEventListener('touchmove', handle_touch_move);
+      });
+    };
+  }, [categories]); // categories가 변경될 때마다 이벤트 리스너 재등록
 
   // 카테고리별 상품 필터링 (최대 6개)
   const getRowProducts = (movie: string) =>
     products.filter((product) => product.extra?.movie === movie).slice(0, 6);
-
-  // 마우스 드래그 시작
-  const handleMouseDown = (e: React.MouseEvent, category: string) => {
-    const container = scrollRefs.current.get(category);
-    if (!container) return;
-
-    setIsDragging(true);
-    setActiveCategory(category);
-    setStartX(e.pageX - container.offsetLeft);
-    setScrollLeft(container.scrollLeft);
-  };
-
-  // 드래그 중
-  const handleMouseMove = (e: React.MouseEvent, category: string) => {
-    if (!isDragging || activeCategory !== category) return;
-
-    const container = scrollRefs.current.get(category);
-    if (!container) return;
-
-    e.preventDefault();
-    const x = e.pageX - container.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    container.scrollLeft = scrollLeft - walk;
-  };
-
-  // 드래그 종료
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setActiveCategory(null);
-  };
-
-  // 휠 스크롤 - 페이지 스크롤 방지 추가
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>, category: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const container = scrollRefs.current.get(category);
-    if (container) {
-      container.scrollLeft += e.deltaY * 0.8;
-    }
-  };
-
-  // 마우스 진입 시 전역 휠 이벤트 리스너 추가
-  const handleMouseEnter = (category: string) => {
-    const preventScroll = (e: WheelEvent) => {
-      const container = scrollRefs.current.get(category);
-      if (container && container.contains(e.target as Node)) {
-        e.preventDefault();
-        e.stopPropagation();
-        container.scrollLeft += e.deltaY * 0.8;
-      }
-    };
-
-    wheelEventRef.current = preventScroll;
-    document.addEventListener('wheel', preventScroll, { passive: false });
-  };
-
-  // 마우스 퇴장 시 전역 휠 이벤트 리스너 제거
-  const handleMouseLeave = () => {
-    if (wheelEventRef.current) {
-      document.removeEventListener('wheel', wheelEventRef.current);
-      wheelEventRef.current = null;
-    }
-  };
 
   const handleCategoryClick = (category: string) => {
     console.log(`Category clicked: ${category}`);
@@ -167,14 +162,15 @@ export default function ProductSection(): JSX.Element {
       <div className={styles.section_header}>
         <div className={styles.category_tabs}>
           {categories.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={styles.tab}
-              onClick={() => handleCategoryClick(category)}
-            >
-              {category}
-            </button>
+            <ResponsiveLink key={category}>
+              <button
+                type="button"
+                className={styles.tab}
+                onClick={() => handleCategoryClick(category)}
+              >
+                {category}
+              </button>
+            </ResponsiveLink>
           ))}
         </div>
       </div>
@@ -200,27 +196,9 @@ export default function ProductSection(): JSX.Element {
                 </div>
 
                 {/* 우측 상품 스크롤 */}
-                <div
-                  className={styles.product_row_scroll}
-                  ref={(el) => {
-                    if (el) scrollRefs.current.set(category, el);
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, category)}
-                  onMouseMove={(e) => handleMouseMove(e, category)}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={() => {
-                    handleMouseUp();
-                    handleMouseLeave();
-                  }}
-                  onMouseEnter={() => handleMouseEnter(category)}
-                  onWheel={(e) => handleWheel(e, category)}
-                  style={{
-                    cursor: isDragging && activeCategory === category ? 'grabbing' : 'grab',
-                  }}
-                >
+                <div className={styles.product_row_scroll}>
                   {categoryProducts.map((product) => (
                     <Link
-
                       href={`/products/${product._id}`}
                       key={product._id}
                       className={styles.product_link}

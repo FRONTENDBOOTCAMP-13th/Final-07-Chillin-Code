@@ -63,3 +63,9 @@
   color: var(--color-text);
   margin-top: 20px;
 }
+
+.footer__educational {
+  font-size: 12px;
+  color: var(--color-text);
+  margin-top: 20px;
+}

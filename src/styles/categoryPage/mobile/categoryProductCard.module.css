@@ -7,6 +7,10 @@
   cursor: pointer;
 }
 
+.product_link {
+  text-decoration: none;
+}
+
 /* 그리드 레이아웃 */
 .product_item.grid_layout {
   display: flex;
